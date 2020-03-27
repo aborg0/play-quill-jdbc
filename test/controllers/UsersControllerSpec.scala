@@ -7,11 +7,12 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import models.{User, Users}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import test._
 
 import scala.util.Random
 
-class UsersControllerSpec extends PlaySpec with OneAppPerTest {
+class UsersControllerSpec extends PlaySpec with GuiceOneAppPerTest {
 
   override def newAppForTest(testData: TestData): Application = fakeApp
 

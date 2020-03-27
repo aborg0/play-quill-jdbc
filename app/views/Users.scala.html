@@ -1,0 +1,19 @@
+@(title: String, users: Seq[User])(userForm: Form[views.CreateUser])(implicit messages: Messages)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    @* Here's where we render the page title `String`. *@
+    <title>@title</title>
+</head>
+<body>
+<ul>
+@for(user <- users) {
+  <li>@user.name, @user.id</li>
+}
+</ul>
+@helper.form(action = Call("POST","/users", "")) {
+    @helper.inputText(userForm("name"), Symbol("id") -> "newUserName")
+}
+</body>
+</html>

@@ -17,4 +17,6 @@ class Users(val db: DbContext) {
 
   def update(user: User) = run(users.filter(_.id == lift(user.id)).update(lift(user)))
 
+  def allActiveUsers = run(users.filter(c => c.isActive))
+
 }

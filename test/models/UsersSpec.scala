@@ -2,11 +2,11 @@ package models
 
 import _root_.test._
 import org.scalatest.Matchers._
-import org.scalatest.{ TestData, WordSpec }
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatest.{TestData, WordSpec}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api._
 
-class UsersSpec extends WordSpec with OneAppPerTest {
+class UsersSpec extends WordSpec with GuiceOneAppPerTest {
 
   override def newAppForTest(testData: TestData): Application = fakeApp
 
