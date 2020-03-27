@@ -11,7 +11,7 @@ class Users(val db: DbContext) {
 
   def find(id: Long) = run(users.filter(c => c.id == lift(id) && c.isActive)).headOption
 
-  def create(user: User) = user.copy(id = run(users.insert(lift(user)).returning(_.id)))
+  def create(user: User) = user.copy(id = run(users.insert(lift(user)).returningGenerated(_.id)))
 
   def delete(user: User) = run(users.filter(_.id == lift(user.id)).delete)
 

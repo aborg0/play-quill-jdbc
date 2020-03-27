@@ -1,4 +1,7 @@
 import java.io.Closeable
+
+import akka.stream.Materializer
+import com.typesafe.config.Config
 import javax.sql.DataSource
 
 import controllers.UsersController
@@ -10,16 +13,22 @@ import play.api.db.{DBComponents, HikariCPComponents}
 import play.api.inject.{Injector, NewInstanceInjector, SimpleInjector}
 import play.api.routing.Router
 import play.api.routing.sird._
-import models.{Users}
+import play.api.libs.concurrent._
+import models.Users
+import play.api.mvc.EssentialFilter
+import play.filters.HttpFiltersComponents
+import play.filters.components.GzipFilterComponents
+import play.filters.gzip.GzipFilterConfig
+
+import scala.concurrent.ExecutionContext
 
 class AppLoader extends ApplicationLoader {
-  override def load(context: Context): Application = new BuiltInComponentsFromContext(context) with DBComponents with HikariCPComponents {
+  override def load(context: Context): Application = new BuiltInComponentsFromContext(context) with DBComponents with HikariCPComponents with GzipFilterComponents with HttpFiltersComponents {
 
-    lazy val db = new H2JdbcContext[SnakeCase](dbApi.database("default").dataSource.asInstanceOf[DataSource with Closeable])
-
+    lazy val db = new H2JdbcContext(SnakeCase, dbApi.database("default").dataSource.asInstanceOf[DataSource with Closeable])
 
     lazy val users = new Users(db)
-    lazy val usersController = new UsersController(users)
+    lazy val usersController = new UsersController(users)(controllerComponents)
 
     val router = Router.from {
       case GET(p"/users/${long(id)}")    => usersController.get(id)
@@ -29,9 +38,17 @@ class AppLoader extends ApplicationLoader {
     }
 
     override lazy val injector: Injector =
-      new SimpleInjector(NewInstanceInjector) + users + router + cookieSigner + csrfTokenSigner + httpConfiguration + tempFileCreator + global
+      new SimpleInjector(NewInstanceInjector) + users + router + cookieSigner + csrfTokenSigner + httpConfiguration + tempFileCreator// + global
 
     Evolutions.applyEvolutions(dbApi.database("default"))
 
+    override lazy val httpFilters: Seq[EssentialFilter] = gzipFilter() +: super.httpFilters
+
+
+    override def config(): Config = configuration.underlying//super[HttpFiltersComponents].config()
+    override implicit lazy val materializer: Materializer = super[GzipFilterComponents].materializer
+    override implicit lazy val executionContext: ExecutionContext = super[GzipFilterComponents].executionContext
+
+    override def configuration: Configuration = super[BuiltInComponentsFromContext].configuration
   }.application
 }
