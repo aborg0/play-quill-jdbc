@@ -1,9 +1,12 @@
 package controllers
 
-import models.{User, Users}
-import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import play.api.mvc.{AbstractController, ControllerComponents}
+import play.api.libs.functional.syntax._
+import play.api.mvc.{AbstractController, Action, ControllerComponents}
+import models.{User, Users}
+
+import scala.async.Async._
+import scala.concurrent.ExecutionContext.Implicits._
 
 class UsersController(userServices: Users)(cc: ControllerComponents) extends AbstractController(cc) {
 
@@ -14,10 +17,10 @@ class UsersController(userServices: Users)(cc: ControllerComponents) extends Abs
       (JsPath \ "isActive").read[Boolean]
     )(User.apply _)
 
-  def get(id: Long) = Action { request =>
+  def get(id: Long) = Action.async { request =>
     userServices.find(id) match {
-      case None => NotFound
-      case Some(user) => Ok(Json.toJson(user))
+      case None => async {NotFound}
+      case Some(user) => async {Ok(Json.toJson(user))}
     }
   }
 
