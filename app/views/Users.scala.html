@@ -1,4 +1,4 @@
-@(title: String, users: Seq[User])(userForm: Form[views.CreateUser])(implicit messages: MessagesProvider)
+@(title: String, users: Seq[User])(userForm: Form[views.CreateUser])(implicit messages: MessagesProvider, request: RequestHeader)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,6 +13,7 @@
 }
 </ul>
 @helper.form(action = Call("POST","/users", "")) {
+    @helper.CSRF.formField
     @helper.inputText(userForm("name"), Symbol("id") -> "newUserName")
 }
 </body>

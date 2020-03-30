@@ -22,12 +22,14 @@ import play.filters.HttpFiltersComponents
 import play.filters.components.GzipFilterComponents
 import play.filters.gzip.GzipFilterConfig
 import play.api.i18n._
+import play.filters.csrf.CSRFComponents
 
 import scala.concurrent.ExecutionContext
 
 class AppLoader extends ApplicationLoader {
   override def load(context: Context): Application = new BuiltInComponentsFromContext(context)
-    with DBComponents with HikariCPComponents with GzipFilterComponents with HttpFiltersComponents with I18nComponents {
+    with DBComponents with HikariCPComponents with GzipFilterComponents with HttpFiltersComponents with I18nComponents
+  with CSRFComponents {
 
     lazy val db = new H2JdbcContext(SnakeCase, dbApi.database("default").dataSource.asInstanceOf[DataSource with Closeable])
 

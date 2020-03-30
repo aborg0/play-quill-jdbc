@@ -37,7 +37,7 @@ class UsersController(userServices: Users)(cc: ControllerComponents) extends Abs
 
   def allActive = Action.async {implicit request: Request[AnyContent] =>
     Future {
-      userServices.allActiveUsers.take(10)
+      userServices.allActiveUsers.take(30)
     }.map(us => Ok(views.html.Users(request.messages(messagesApi)("home.title"), us)(userForm)))
   }
 
