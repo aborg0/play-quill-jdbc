@@ -2,7 +2,7 @@ package controllers
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, MessagesAbstractController, MessagesControllerComponents, MessagesRequest, Result}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, MessagesAbstractController, MessagesControllerComponents, MessagesRequest, Request, Result}
 import models.{User, Users}
 import play.api.data._
 import play.api.data.Forms._
@@ -13,7 +13,7 @@ import scala.async.Async._
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
-class UsersController(userServices: Users)(cc: MessagesControllerComponents) extends MessagesAbstractController(cc) {
+class UsersController(userServices: Users)(cc: ControllerComponents) extends AbstractController(cc) with I18nSupport {
 
   implicit val userWrites: Writes[User] = Json.writes[User]
   implicit val userReads: Reads[User] = (
@@ -35,10 +35,10 @@ class UsersController(userServices: Users)(cc: MessagesControllerComponents) ext
     }
   }
 
-  def allActive = Action.async {implicit request: MessagesRequest[AnyContent] =>
+  def allActive = Action.async {implicit request: Request[AnyContent] =>
     Future {
       userServices.allActiveUsers.take(10)
-    }.map(us => Ok(views.html.Users("Users", us)(userForm)))
+    }.map(us => Ok(views.html.Users(request.messages(messagesApi)("home.title"), us)(userForm)))
   }
 
   def create = Action/*(parse.json)*/ { implicit request =>

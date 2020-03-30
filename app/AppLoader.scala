@@ -32,8 +32,7 @@ class AppLoader extends ApplicationLoader {
     lazy val db = new H2JdbcContext(SnakeCase, dbApi.database("default").dataSource.asInstanceOf[DataSource with Closeable])
 
     lazy val users = new Users(db)
-    lazy val usersController = new UsersController(users)(DefaultMessagesControllerComponents(
-      new DefaultMessagesActionBuilderImpl(new BodyParsers.Default(playBodyParsers), messagesApi),
+    lazy val usersController = new UsersController(users)(DefaultControllerComponents(
       defaultActionBuilder,
       playBodyParsers,
       messagesApi,
